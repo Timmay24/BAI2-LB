@@ -6,7 +6,8 @@
 % Teil 1.1
 is_a_list([_|_]).
 % Teil 1.2
-
+app([],L,L).
+app([KopfL1|RestL1],L2,[KopfL1|RestL3]) :- app(RestL1,L2,RestL3).
 
 % Teil 1.3
 infix(I,[I|_]).
@@ -28,8 +29,13 @@ elem_count([],0).
 elem_count([_|Rest],Accu) :- elem_count(Rest,NewAccu), Accu is NewAccu + 1.
 
 % Teil 1.7
+del_element(_E,[],[]).
+del_element(E,[LK|LR],[RK|RR]).
+
 
 % Teil 1.8
+substitute(_E1,_E2,[],[]).                                        /*
+substitute(E1,E2,[LK|LR],[|RR]) :- substitute(E1,E2,LR,RR),LK=E1. */
 
 
 % Teil 2.1
