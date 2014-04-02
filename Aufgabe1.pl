@@ -9,17 +9,17 @@ is_a_list([_|_]).  % Eingabe ist eine Liste beliebiger Länge
 
 % Teil 1.2
 % app(Liste 1, Liste 2, Ergebnisliste)
-app([],L,L). % Basisfall, Liste 2 mit Ergebnisliste unifizieren
-app([KopfL1|RestL1],L2,[KopfL1|RestL3]) :- %
-    app(RestL1,L2,RestL3).                 %
+app([],List,List).                         % Basisfall, Liste 2 mit Ergebnisliste unifizieren
+app([KopfL1|RestL1],L2,[KopfL1|RestL3]) :- % Ergebnisliste auf Rückweg um Kopf von L1 erweitern
+    app(RestL1,L2,RestL3).                 % Rek. Aufruf, um zum Ende von L1 zu gelangen
 
 % Teil 1.3
-infix(I,[I|_]).
-infix(I,[_|Rest]) :- infix(I,Rest).
+infix(I,[I|_]).                     % Rek.Abbruch, Element I ist in der Liste enthalten
+infix(I,[_|Rest]) :- infix(I,Rest). % Rek. Aufruf, Rest der Liste übergeben und weitersuchen
 
 % Teil 1.4
-suffix(S,[S|[]]).
-suffix(S,[_|Rest]) :- suffix(S,Rest).
+suffix(S,[S|[]]).                     % Rek.Abbruch, Element steht am Ende der Liste
+suffix(S,[_|Rest]) :- suffix(S,Rest). % Rek. Aufruf, Rest übergeben
 
 % Teil 1.5
 prefix(P,[P|_]).
@@ -72,11 +72,14 @@ a24 :- emp(_EMPNO,ENAME,_,MGR,ESAL,_EEXT,_EDEPTNO), % Mitarbeiter samt Gehalt un
 a24.
 
 % Teil 2.5
+a25 :- a25('JONES').
 a25(MGRNAME) :-
-    %
-    emp(MGRNO,MGRNAME,_,_,_,_,_), emp(EMPNO,EMPNAME,_,MGRNO,_,_,_), a25(EMPNAME),
+    emp(MGRNO,MGRNAME,_,_,_,_,_),     % Angestelltennummer des Managers ermitteln
+    emp(EMPNO,EMPNAME,_,MGRNO,_,_,_), % Unterstelle des Managers suchen
+    a25(EMPNAME),                     % Rek. Aufruf zur Suche nach indirekt Unterstellten
     write(EMPNAME), write(' ist '), write(MGRNAME), writeln(' unterstellt.'), fail.
 a25(_MGRNAME).
+a25.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
