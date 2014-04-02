@@ -33,12 +33,12 @@ eo_count([],0,0).       % Basisfall
 % del_element(Zu löschendes Element E, Eingabeliste L, Ergebnisliste R)
 del_element(_E,[],[]).        % Basisfall, Rek.-Abbruch
 del_element(E,[E|Lrest],R) :- % Ist E mit dem Kopf der Liste L unifizierbar
-    del_element(E,Lrest,R).     % Ergebnisliste R ohne E "weitergeben"
+    del_element(E,Lrest,R).   % Ergebnisliste R ohne E "weitergeben"
 
                                       % andernfalls
 del_element(E,[L_Kopf|L_Rest],Out) :- % Liste R mit Kopf von L aufbauen
-    del_element(E,L_Rest,R_Rest),       % Rekursiver Aufruf (result. Liste R auf Rückweg)
-    Out = [L_Kopf|R_Rest].              % Liste R gebunden an Out
+    del_element(E,L_Rest,R_Rest),     % Rekursiver Aufruf (result. Liste R auf Rückweg)
+    Out = [L_Kopf|R_Rest].            % Liste R gebunden an Out
 
 
 % Teil 1.8
@@ -65,15 +65,15 @@ a23 :- emp(_EMPNO,ENAME,'MANAGER',_MGR,_SAL,_EXT,_DEPTNO),   % Mananger suchen
 a23.
 
 % Teil 2.4
-a24 :- emp(_EMPNO,ENAME,_,MGR,ESAL,_EEXT,_EDEPTNO), % Mitarbeiter samt Gehalt und Vorgesetzten laden
-    emp(MGR,MGRNAME,_,_,MSAL,_MEXT,_MDEPTNO),       % Vorgesetzten des MA samt Gehalt laden
-    ESAL > MSAL,                                    % Gehalt des MA > Gehalt des Vorgesetzten?
+a24 :- emp(_EMPNO,ENAME,_EJOB,MGR,ESAL,_EEXT,_EDEPTNO), % Mitarbeiter samt Gehalt und Vorgesetzten laden
+    emp(MGR,MGRNAME,_MJOB,_MGR,MSAL,_MEXT,_MDEPTNO),    % Vorgesetzten des MA samt Gehalt laden
+                                        ESAL > MSAL,    % Gehalt des MA > Gehalt des Vorgesetzten?
     write(ENAME), write(' verdient mehr als sein Vorgesetzter '), writeln(MGRNAME), fail.
 a24.
 
 % Teil 2.5
 a25 :- a25('JONES').
-a25(MGRNAME) :-
+a25(MGRNAME) :-                       % a25(Name des Managers)
     emp(MGRNO,MGRNAME,_,_,_,_,_),     % Angestelltennummer des Managers ermitteln
     emp(EMPNO,EMPNAME,_,MGRNO,_,_,_), % Unterstelle des Managers suchen
     a25(EMPNAME),                     % Rek. Aufruf zur Suche nach indirekt Unterstellten
