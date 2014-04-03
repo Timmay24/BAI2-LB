@@ -15,19 +15,22 @@ app([KopfL1|RestL1],L2,[KopfL1|RestL3]) :- % Ergebnisliste auf Rückweg um Kopf v
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Teil 1.3)
+% Teil 1.3) toRedo
 infix(I,[_P,I,_S|_]).               % Rek.Abbruch, Element I ist in der Liste enthalten
+                                    % und I einen beliebigen Vorgänger und Nachfolger i.d. Liste hat
 infix(I,[_|Rest]) :- infix(I,Rest). % Rek. Aufruf, Rest der Liste übergeben und weitersuchen
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Teil 1.4)
+% Teil 1.4) toRedo
 suffix(S,[S|[]]).                     % Rek.Abbruch, Element steht am Ende der Liste
 suffix(S,[_|Rest]) :- suffix(S,Rest). % Rek. Aufruf, Rest übergeben
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Teil 1.5)
+% Teil 1.5) toRedo
 prefix(P,[P|_]).  % Position: Anfang der Liste und P ist Kopf der Liste,
                   % somit ist das Element P Präfix der Liste.
 
@@ -35,13 +38,28 @@ prefix(P,[P|_]).  % Position: Anfang der Liste und P ist Kopf der Liste,
 
 % Teil 1.6)
 % eo_count(Eingabeliste L, Zähler geradestelliger Listen Even, Zähler ungeradestell. Listen Odd)
-eo_count([],0,0).       % Basisfall, Rek.Abbruch
+%
+% _ => Platzhalter, um die Signaturen der Prädikate unterscheidbar zu machen,
+% eo_count/3: Für Hauptaufruf
+% eo_count/4: Für rekursive Aufrufe
 
+eo_count(List, Even, Odd) :-
+                  % _ = Platzhalter       % Eingabeliste selbst überprüfen
+    (eo_count(List, _, Result_Even, Odd), list_even?(List), Even is Result_Even + 1,!); % Gerade   => Even hochzählen
+    (eo_count(List, _, Even, Result_Odd),                   Odd  is Result_Odd  + 1,!). % Ungerade => Odd  hochzählen
 
+eo_count([], _, 0,0).  % Basisfall / rek.Abbruch
 
+eo_count([Head|Tail], _, Even, Odd) :-
+                                          % Unterlisten überprüfen
+    (eo_count(Tail, _, Result_Even, Odd), list_even?(Head), Even is Result_Even + 1,!); % siehe z49
+    (eo_count(Tail, _, Even, Result_Odd),                   Odd  is Result_Odd  + 1,!). % "   " z50
+
+% HILFSFUNKTIONEN %
 % Zählt Elemente einer Liste %
 elem_count([],0).
 elem_count([_|Rest],Accu) :- elem_count(Rest,NewAccu), Accu is NewAccu + 1.
+
 % Gibt Auskunft darüber, ob die Anzahl Elemente der Liste L gerade ist %
 list_even?(L) :- elem_count(L,Count), 0 is mod(Count,2).
 
@@ -56,26 +74,31 @@ del_element(E,[E|L_Rest],R) :-        % Ist E mit dem Kopf der Liste L unifizier
     del_element(E,L_Rest,R).          % => Ergebnisliste R ohne E "weitergeben"
                                       % andernfalls
 del_element(E,[L_Kopf|L_Rest],Out) :- % Liste R mit L-Kopf gebunden an Out
+    E \= L_Kopf,
     del_element(E,L_Rest,R_Rest),     % Rekursiver Aufruf (result. Liste R auf Rückweg)
-    Out = [L_Kopf|R_Rest].            % Liste R mit L-Kopf aufbauen und an Out binden
+    [L_Kopf|R_Rest] = Out.            % Liste R mit L-Kopf aufbauen und an Out binden
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Teil 1.8)
 % substitute(Element1, Element2, Liste L, Ergebnisliste R)
-substitute(_E1,_E2,[],[]).          % Basisfall, Rek.Abbruch, R mit [] unifizieren
+substitute(_E1,_E2,[],[]).                   % Basisfall, Rek.Abbruch, R mit [] unifizieren
 substitute(E1,E2,[E1|L_Rest],[E2|R_Rest]) :- % E1 ist Kopf von L, auf d. Rückweg wird R
-                                             % unifiziert mit R_Rest und E2 als neuer Kopf
+                                             % unifiziert mit (R_Rest und E2 als neuer Kopf)
     substitute(E1,E2,L_Rest,R_Rest).         % Rek. Aufruf bis Listenende
     
 substitute(E1,E2,[L_First|L_Rest],[L_First|R_Rest]) :- % E1 ist nicht Kopf von L, daher wird auf d. Rückweg
                                                        % R unifiziert mit R_Rest und dem Kopf von L
+    E1 \= L_First,                                     %
     substitute(E1,E2,L_Rest,R_Rest).                   % Rek. Aufruf bis Listenende
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 % Teil 2.1)
-a21 :- dept(DEPTNO, DNAME, 'BOSTON'),            % Passende Werte zu Boston an Variablen binden
+a21 :- a21('BOSTON').                            % Statischer Auruf mit LOC = 'BOSTON'
+a21(LOC) :- dept(DEPTNO, DNAME, LOC),            % Passende Werte zu LOC an Variablen binden
     write('DeptNo: '), write(DEPTNO),            % Ausgabe DeptNo
     write(', DeptName: '), writeln(DNAME), fail. % Ausgabe DeptName
 a21.                                             % Rückgabe von false durch fail abfangen
@@ -104,9 +127,9 @@ a23.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Teil 2.4)
-a24 :- emp(_EMPNO,ENAME,_EJOB,MGR,ESAL,_EEXT,_EDEPTNO), % Mitarbeiter samt Gehalt und Vorgesetzten laden
-    emp(MGR,MGRNAME,_MJOB,_MGR,MSAL,_MEXT,_MDEPTNO),    % Vorgesetzten des MA samt Gehalt laden
-                                        ESAL > MSAL,    % Gehalt des MA > Gehalt des Vorgesetzten?
+a24 :- emp(_EMPNO,ENAME,  _EJOB, MGR,ESAL,_EEXT,_EDEPTNO), % Mitarbeiter samt Gehalt und Vorgesetzten laden
+       emp(MGR,   MGRNAME,_MJOB,_MGR,MSAL,_MEXT,_MDEPTNO), % Vorgesetzten des MA samt Gehalt laden
+                                        ESAL > MSAL,       % Gehalt des MA > Gehalt des Vorgesetzten?
     write(ENAME), write(' verdient mehr als sein Vorgesetzter '), writeln(MGRNAME), fail.
 a24.
 
