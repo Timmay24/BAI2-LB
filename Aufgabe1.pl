@@ -16,7 +16,7 @@ app([KopfL1|RestL1],L2,[KopfL1|RestL3]) :- % Ergebnisliste auf Rückweg um Kopf v
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Teil 1.3)
-infix(I,[I|_]).                     % Rek.Abbruch, Element I ist in der Liste enthalten
+infix(I,[_P,I,_S|_]).               % Rek.Abbruch, Element I ist in der Liste enthalten
 infix(I,[_|Rest]) :- infix(I,Rest). % Rek. Aufruf, Rest der Liste übergeben und weitersuchen
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,12 +31,12 @@ suffix(S,[_|Rest]) :- suffix(S,Rest). % Rek. Aufruf, Rest übergeben
 prefix(P,[P|_]).  % Position: Anfang der Liste und P ist Kopf der Liste,
                   % somit ist das Element P Präfix der Liste.
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Teil 1.6)
 % eo_count(Eingabeliste L, Zähler geradestelliger Listen Even, Zähler ungeradestell. Listen Odd)
 eo_count([],0,0).       % Basisfall, Rek.Abbruch
+
 
 
 % Zählt Elemente einer Liste %
@@ -76,7 +76,7 @@ substitute(E1,E2,[L_First|L_Rest],[L_First|R_Rest]) :- % E1 ist nicht Kopf von L
 
 % Teil 2.1)
 a21 :- dept(DEPTNO, DNAME, 'BOSTON'),            % Passende Werte zu Boston an Variablen binden
-    write('DeptNo: '), write(DEPTNO),            % Ausgabe Deptno
+    write('DeptNo: '), write(DEPTNO),            % Ausgabe DeptNo
     write(', DeptName: '), writeln(DNAME), fail. % Ausgabe DeptName
 a21.                                             % Rückgabe von false durch fail abfangen
 
